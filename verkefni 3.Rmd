@@ -158,6 +158,15 @@ Fiskur sem er á einhverju stigi kynþroskans flokkast sem kynþroska fiskur.
 Hér er hægt að nota annaðhvort `case_when()` eða `ifelse()` fallið.
 
 Hér eftir vinnum við með kynþroskabreytuna með þessum tveimur flokkum.
+```{r}
+options(max.print=1000000)
+at <- at %>% mutate(
+    kt2 = case_when(
+      kt == 4 | kt == 2 | kt == 3 | kt == 5 | kt == 22 ~ 'kynthroska',
+      TRUE ~ 'okynthroska',
+    )
+  )
+```
 
 #### b) (12%)
 Sýnið í töflu hversu margir fiskar af hvoru kynþroskastigi veiddust á hverju hafsvæði. 
