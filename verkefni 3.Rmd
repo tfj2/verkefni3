@@ -101,6 +101,7 @@ Sumt er betur gert að þáttum (flokkabreytur, factors), en það má gera á s
 ```{r}
 at<-read_csv("data98.csv")
 sum(is.na(at))
+glimpse(at)
 ```
 
 
@@ -127,11 +128,13 @@ Passið ykkur að nota strengi þegar flokkabreytan er búin til því `NA` án 
 ```{r}
 at <- at %>% mutate(lat=r2d(reit)$lat)
 at <- at %>% mutate(lon=r2d(reit)$lon)
-at$hafsvaedi <- at %>% mutate(
+critical_lat = 65
+critical_long = -19
+at <- at %>% mutate(
     hafsvaedi = case_when(
       lat >= critical_lat & lon >= critical_long ~ 'NA',
-      ? ~ 'NV',
-      ? ~ 'SA',
+      lat >= critical_lat & lon < critical_long ~ 'NV',
+      lat < critical_lat & lon >= critical_long ~ 'SA',
       TRUE ~ 'SV'
     )
   )
