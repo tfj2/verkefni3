@@ -1,0 +1,392 @@
+---
+title: "Tölvuverkefni 3"
+author: "Líkindareikningur og tölfræði: STÆ203G, HAG206G, MAS201F"
+output: 
+  rmarkdown::html_document:
+    theme: cosmo
+---
+
+##Þið eigið að vinna verkefnið í <tt> .Rmd </tt> skrá en skila <tt> .html </tt> skrá (LaTeX fólk má vinna í <tt> .Rnw </tt> skrá og skila <tt> .pdf </tt> skrá).
+
+##EKKI verður tekið við lausnum á öðru formi en .html eða .pdf (ekki skila .Rmd, .zip, .txt, .docx, o.s.fr.)
+
+####ATHUGIÐ <tt> .html </tt> skráin verður til í sömu möppu og <tt> .Rmd </tt> skráin þegar þið prjónið.
+
+###Þið megið vinna verkefnið tvö og tvö saman en ekki í stærri hópum.
+
+##Merkja þarf lausnir með **nafni og HÍ-notendanafni** þeirra sem unnu verkefnið.
+
+##Hlaða skal <tt> .html </tt> eða <tt> .pdf </tt> skrá inn á Canvas ekki síðar en þriðjudaginn 13. apríl klukkan 23:59.
+
+###<span style="color:red">Sein skil fá 1 í frádrátt og svo auka 1 í frádrátt fyrir hvern sólarhring sem líður frá skilafresti.</span>
+
+###Frágangur gildir 10% af einkunn fyrir verkefnið (merkja verkefni með nafni og notendanafni, merkingar á ásum, töflur, uppsetning, ...).
+
+###Til að búa til fagrar töflur mælum við með að þið notið `kable()` fallið en hana má finna í <tt>knitr</tt> pakkanum (munið að keyra `library()` skipun).
+
+###Meiri krafa verður gerð til frágangs í þetta skiptið, svo sem til útlits á töflum og merkingar á myndum og töflum.
+
+#Verkefnislýsing
+```{r, echo=F, warning=F, message=F}
+library(dplyr)
+library(ggplot2)
+library(ggmap)
+library(maps)
+library(mapdata)
+```
+
+Í þessu verkefni munið þið munið vinna með annað gagnasafn en í Tölvuverkefni 1 og 2 en þetta gagnasafn inniheldur mælingar á fiskum í "togararalli" Hafrannsóknastofnunarinnar 1998.
+Gagnasafnið inniheldur eftirfarandi dálka:
+
+<pre>
+recid	   Færslunúmer
+reit	   Tilkynningaskyldureitur
+smrt	   Smáreitur (undirreitir)
+tog_nr	 Númer togsins (innan reits)
+dag	     Dagur (innan mánaðar)
+man	     Mánuður
+dyp_min	 Minnsta dýpi í toginu
+dyp_max	 Mesta dýpi í toginu
+vf	     Veiðarfæri (á alltaf að vera það sama hér)
+nr	     Númer fisks í sýninu
+le	     Lengd fisksins
+ky	     Kyn fisksins (1=hængur)
+kt	     Kynþroski (1=ókynþroska, 4=hrygndur)
+aldur    Aldur fisksins
+osl	     Óslægð þyngd (lifandi vigt)
+sl	     Slægð þyngd
+li       Þyngd lifrarinnar
+</pre>
+
+Reitum má breyta í lengdar- og breiddargráður:
+Tilkynningaskyldureitur <https://www.rdocumentation.org/packages/geo/versions/1.4-3/topics/rect2deg>
+
+Það er skynsamlegt að byrja á að líta á hverja breytu fyrir sig,
+t.d. með því að gera stuðlarit eða stöplarit og fá þannig tilfinningu fyrir gögnunum,
+Það er einnig sniðugt að hugleiða hvort vænlegra sé að líta á <tt>aldur</tt> sem strjála eða samfellda breytu.
+
+Gagnaskráin sem þið eigið að vinna með er á Canvas.
+
+Þið getið leitað með Hr. Google að "tilkynningaskyldureitir" eða notað eftirfarandi til að sjá hvar reitirnir liggja
+```{r, echo=T, warning=F, message=F}
+library(readr)
+r2d <-function(r)
+{
+	lat <- floor(r/100)
+	lon <- (r - lat * 100) %% 50
+	halfb <- (r - 100 * lat - lon)/100
+	lon <-  - (lon + 0.5)
+	lat <- lat + 60 + halfb + 0.25
+	data.frame(lat = lat, lon = lon)
+}
+gs<-read_csv("data98.csv")
+reitir<-unique(gs$reit) # Fjarlægjum tvítekin gildi til þess að myndin verði fallegri
+x<-r2d(reitir)$lon
+y<-r2d(reitir)$lat
+plot(x,y,type='n') # Teikna mynd af hafsvæðum
+text(x,y,as.character(reitir))
+```
+
+(athugið að þetta er EKKI besta leiðin til að teikna þessa mynd - sjá bónusspurninguna).
+
+#### a) (5%)
+Lesið gagnaskrána inn með `read_csv()` skipuninni og geymið í hlut (gagnaramma) sem ber upphafsstafi þeirra sem verkefnið vinna
+(ef Gréta Halldórsdóttir og Sigurður Jónsson eru að vinna saman skulu þau nefna hlutinn gs en ef Atli Pétursson er að vinna einn skal hann nefna hlutinn sinn ap).
+
+Það á ekki að vanta gildi (missing values) í gagnaskránni.
+
+Athugið að öll gildin í töflunni eru tölur.
+Sumt er betur gert að þáttum (flokkabreytur, factors), en það má gera á seinni stigum.
+
+```{r}
+at<-read_csv("data98.csv")
+sum(is.na(at))
+```
+
+
+**Búið til nýja breytu sem inniheldur hafsvæði.**
+
+Skýrið nýju breytuna <tt>hafsvaedi</tt>.
+Nýja breytan á að verða hluti af gagnatöflunni ykkar.
+
+Hafsvæðisbreytuna á að skilgreina með flokkunum SV, NV, NA, SA.
+Skipting flokkanna er eftirfarandi:
+
+* S-N skiptingin er um breiddarbaug (latitude) 65 gráður norðlægrar breiddar
+(þ.e. 65, svo reitir 527, 561 lenda til norðurs)
+* A-V skiptingin um lengdarbaug (longitude) 19 gráður vestlægrar lengdar
+(þ.e. -19 svo reitir 319, 569 lenda til vesturs).
+
+Breytan ykkar, <tt>hafsvaedi</tt>, verður flokkabreyta með fjórum flokkum.
+
+Ábending: Notið fallið `r2d()` sem er gefið hér að ofan til þess að búa til `lat` og `lon` breytur í gagnarammanum ykkar sem þið notið svo til þess að búa til breytuna `hafsvaedi`.
+
+Hér er sniðugt að nota fallið `case_when` úr `dplyr` pakkanum.
+Passið ykkur að nota strengi þegar flokkabreytan er búin til því `NA` án gæsalappa er sérstök breyta í R sem stendur fyrir að gildi vanti.
+
+```{r}
+at <- at %>% mutate(lat=r2d(reit)$lat)
+at <- at %>% mutate(lon=r2d(reit)$lon)
+at$hafsvaedi <- at %>% mutate(
+    hafsvaedi = case_when(
+      lat >= critical_lat & lon >= critical_long ~ 'NA',
+      ? ~ 'NV',
+      ? ~ 'SA',
+      TRUE ~ 'SV'
+    )
+  )
+```
+
+
+**Búið til nýja kynþroskabreytu, <tt>kt2</tt>, sem inniheldur einungis tvo flokka: kynþroska og ókynþroska.**
+
+**Nýja kynþroskabreytan, <tt>kt2</tt>, er háð gömlu kynþroskabreytunni, <tt>kt</tt>, á eftirfarandi hátt:**
+
+Kynþroskabreytan í gögnunum, <tt>kt</tt>, inniheldur flokkana
+
+* 1 = Ókynþroska
+* 4 = Hryngdur (stig kynþroska fisks) : kynþroska
+* 2,3,5,22 = Önnur stig kynþroska fisks : kynþroska
+
+Æviskeið fiska samanstendur af nokkrum mismunandi stigum kynþroska.
+Annars vegar er fiskur ókynþroska eða á einhverju stigi kynþroskans.
+Fiskur sem er á einhverju stigi kynþroskans flokkast sem kynþroska fiskur.
+
+Hér er hægt að nota annaðhvort `case_when()` eða `ifelse()` fallið.
+
+Hér eftir vinnum við með kynþroskabreytuna með þessum tveimur flokkum.
+
+#### b) (12%)
+Sýnið í töflu hversu margir fiskar af hvoru kynþroskastigi veiddust á hverju hafsvæði. 
+
+Búið til aðra töflu sem sýnir kynþroskahlutfallið á hverju hafsvæði
+(það á t.d. að vera hægt að lesa hversu hátt hlutfall fiska á suð-vestursvæði (SV) séu kynþroska og ókynþroska). 
+
+Teiknið mynd sem er lýsandi fyrir fjölda fiska af hvoru kynþroskastigi í hverjum flokki af hafsvæðunum fjórum.
+
+#### c) (12%)
+Sýnið í töflu fjölda fiska, meðallengd, meðalþyngd og staðalfrávik lengdar eftir aldri.
+Lýsið í örstuttu máli niðurstöðum ykkar sem sjá má í töflunni.
+
+Teiknið eftirfarandi tvær myndir:
+
+* Mynd sem sýnir **lengd** fiska eftir aldri þegar litið er á aldur sem **samfellda**
+  breytu ásamt **meðallengd** fiska fyrir hvern aldurshóp sem stærri rauða punkta
+* Kassarit sem sýnir **lengd** fiska eftir aldri þegar litið er á aldur sem **strjála** breytu
+
+Eru einhverjir útlagar í aldurshópunum?
+
+Hverjir eru kostirnir við hvora framsetningu fyrir sig?
+
+#### d) (5%)
+Veljið nú tvö hafsvæði af handahófi með `sample()` fallinu
+eftir að hafa keyrt `set.seed()` með afmælisdeginum ykkar eins og í verkefni 2.
+
+Veljið af handahófi 50 fiska af hvoru hafsvæði.
+Til að velja fiskana er gott að nota `sample_n()` fallið úr `dplyr` pakkanum því það velur raðir úr gagnaramma
+af handahófi svo að þið fáið nýjan gagnaramma fyrir hvort hafsvæði (það má líka nota `sample()`).
+Munið að keyra `set.seed()` með afmælisdeginum ykkar áður en þið keyrið hvora `sample_n()` skipunina fyrir sig.
+
+Sameinið fiskana 100 í eina gagnatöflu (gagnaramma).
+Gott er að nota `rbind()` fallið til að sameina gagnarammana.
+
+#### e) (15%)
+Kannið með viðeigandi tilgátuprófi, með 95% marktæknikröfu,
+hvort munur sé á meðallengd fiska á hafsvæðunum tveimur.
+
+Setjið fram tilgáturnar á formlegan hátt ($H_0$ og $H_1$).
+
+Tilgreinið hvaða forsendur gögnin þurfa að uppfylla til þess að eiga von á því að tilgátuprófið gefi heilvita niðurstöðu.
+
+Tilgreinið gildið á prófstærðinni ásamt p-gildinu í samfelldu máli og segið í örfáum orðum hvaða ályktun þið dragið.
+
+Sýnið einnig 95%-öryggisbil fyrir mismun meðaltalanna á hafsvæðunum tveimur. 
+Inniheldur öryggisbilið 0?
+Hvers vegna eða hvers vegna ekki? Útskýrið.
+
+MUNIÐ: "Samfellt mál" þýðir TEXTI sem samanstendur af heilsteyptum setningum með sögnum (sagnorðum) og nafnorðum.
+Það er ekki átt við blokkir af úttaki úr R!
+
+#### f) (12%)
+**Teiknið stuðlarit** af lengd fyrir hvert hafsvæði með því að nota allar lengdarmælingar úr upphaflega gagnasafninu.
+
+**Teiknið inn á stuðlaritin í rauðum lit** þéttleikafall (graf) þeirrar normaldreifingar sem "náttúrulegt" (eðlilegt) væri að búast við að
+gögnin fyrir hvert hafsvæði fylgdu.
+
+Notið <tt>binwidth = 3</tt> fyrir stuðlaritin.
+
+Best er að teikna myndirnar fjórar ásamt þéttleikaföllum á eftirfarandi hátt:
+
+* Búum til gagnaramma á löngu sniði (long format) sem inniheldur flokkabreytuna
+  <tt>hafsvaedi</tt> og lengdarbreytuna <tt>le</tt>
+
+```{r, langt_snid, eval=FALSE, echo=TRUE}
+library(reshape2)
+gs_long = melt(gs, id.vars='hafsvaedi', measure.vars='le', value.name='le')
+```
+
+* Hermum gögn úr "náttúrulegu" normaldreifingunni fyrir hvert hafsvæði
+  
+```{r, normleg_gogn_per_hafsvaedi, eval=FALSE, echo=TRUE}
+# Skilgreinum fall sem ad tekur inn gagnavigur x og
+#   skilar gognum sem fylgja "natturulegu" normaldreifingu vigursins x
+get_normal_density <- function(x, binwidth) {
+  grid <- seq(min(x), max(x), length=100)
+  data.frame(
+    le = grid,
+    normal_curve = dnorm(grid, mean(x), sd(x)) * length(x) * binwidth
+  )
+}
+
+# Skilgreinum breytu fyrir binwidth
+BW <- 3
+
+# Buum til normaldreifd gogn fyrir hvert hafsvaedi med thvi ad
+#   beita fallinu "get_normal_density" a lengdarmaelingar sem tilheyra
+#   hverju hafsvaedi fyrir sig
+normaldens <-
+  gs %>%
+  group_by(hafsvaedi) %>%
+  do(get_normal_density(x=.$le, binwidth=BW))
+```
+
+* Þið þurfið nú að skrifa kóðann til þess að teikna myndirnar fjórar upp,
+  notið `facets()` fallið líkt og í verkefni 2 og nýtið ykkur
+  `geom_line()` fallið úr <tt>ggplot2</tt> pakkanum ásamt
+  normaldreifðu gögnunum sem þið búið til líkt og sýnt er fyrir ofan
+  til þess að teikna þéttleikaföllin (gröfin) inn á myndirnar
+
+Túlkið það sem myndirnar sýna.
+Fylgja gögnin normaldreifingu?
+Ályktið.
+
+#### g) (5%)
+Munið að ein forsendan fyrir því að mega nota t-prófið eins og gert var, er að gögnin séu normaldreifð.
+Til eru fjölmörg önnur próf en t-próf sem ekki krefjast normaldreifingar.
+Eitt slíkt er slembivalspróf (randomization test eða permutation test).
+
+Þá eru öll gögnin (lengdirnar sem fóru inn í að reikna prófstærðina fyrir t-prófið)
+úr gagnasöfnunum tveimur (hafsvæðin tvö sem unnið var með í liðunum á undan) sett saman,
+dregið slembið úr samsetta gagnasafninu án skila og skipt aftur í tvö gagnasöfn af sömu stærðum
+(sami fjöldi gagnapunkta) og upphaflegu gagnasöfnin voru,
+nýtt t-gildi reiknað og svo talið hve oft nýja t-gildið er tölulega stærra en upphaflega t-gildið
+(sem þið reiknuðuð í venjulega t-prófinu).
+
+P-gildi prófsins er hlutfall þeirra skipta sem nýja t-gildið er tölulega stærra en upphaflega t-gildið.
+
+**Framkvæmið slembivalsprófið fyrir ykkar t-próf:**
+
+Segjum að þið hafið vistað prófstærð upphaflega t-prófsins í breytunni <tt>t0</tt>.
+
+Þá getið þið borið tölugildið af,
+`t0`,
+saman við tölugildið af
+`t.test(z[sample(1:length(z))]~xyind)$statistic`
+þar sem <tt>xyind</tt> er vigur af sömu lengd og samsetta gagnasafnið sem er geymt í breytunni <tt>z</tt>.
+
+Vigurinn <tt>xyind</tt> inniheldur gildin 1 og 2 og er notaður til þess að skipta gögnunum í
+tvö gagnasett af sömu stærðum og upprunalegu gagnasöfnin (fyrir hvort hafsvæði)
+sem unnið var með í liðunum á undan.
+
+Endurtakið þetta 5000 sinnum með því að nota `replicate()` fallið eins og í fyrri verkefnum.
+
+Setjið p-gildið fram ásamt ásamt þeirri ályktun sem þið dragið (í samfelldu máli).
+Er ályktunin í samræmi við ályktunina sem þið dróguð af venjulega t-prófinu?
+
+#### h) (15%)
+Kannið með viðeigandi tilgátuprófi, með 95% marktæknikröfu,
+hvort munur sé á hlutfalli kynþroska fiska á hafsvæðunum tveimur.
+Athugið að þið gætuð þurft að henda úr hafsvæðisgögnunum ykkar ónotuðum flokkum í flokkabreytunni <tt>hafsvaedi</tt>.
+Þið getið gert það með `droplevels()` fallinu
+
+Birtið töflu yfir fjölda kynþroska og ókynþroska fiska á hvoru hafsvæði.
+
+Setjið tilgáturnar fram á formlegan hátt ($H_0$ og $H_1$).
+Tilgreinið gildið á prófstærðinni, p-gildinu og matið á stikunum sem verið er að prófa í samfelldu máli.
+Takið fram hvort að matið á stikunum sé fyrir hlutfall kynþroska fiska eða ókynþroska fiska.
+
+Segið í örfáum orðum hvaða ályktun þið dragið.
+
+Sýnið einnig 95%-öryggisbil fyrir mismun hlutfallanna. 
+Inniheldur öryggisbilið 0?
+Hvers vegna eða hvers vegna ekki?
+
+#### i) (12%)
+Veljið annað hvort hafsvæðið sem þið unnuð með í liðunum hér að framan (þið eigið að vera með 50 fiska).
+Þið getið notað beint annan gagnaramman sem þið bjugguð til í lið d) eða notað
+`filter()` á sameinaða gagnarammann ykkar.
+
+Teiknið mynd sem sýnir sambandið á milli lengdar og þyngdar fiskanna (þyngd er háða breytan, y-ás).
+
+Teiknið mynd sem sýnir sambandið á milli lograns af lengd og lograns af þyngd fiskanna (þyngd er háða breytan, y-ás).
+
+Smíðið aðhvarfsgreiningarlíkan sem nota má til að spá fyrir um þyngd út frá lengd.
+Geymið líkanið í breytunni <tt>fit</tt>.
+Athugið að hér er eðlilegast að nota logrann af báðum breytum (hvers vegna? - þið þurfið að útskýra þetta).
+
+Setjið líkanið fram ásamt mati á stikum þess.
+
+Segið með örfáum orðum hvort þið teljið skynsamlegt að nota líkan sem þetta til að spá fyrir um þyngd út frá lengd fiskanna.
+
+#### j) (4%)
+Teiknið aftur mynd, líkt og í lið i), sem sýnir sambandið á milli lengdar og þyngdar fiskanna
+(lengd er óháða breytan en þyngd er háða breytan).
+En í þetta sinn eigið þið að teikna inn á myndina bestu beinu línu ásamt bestu línu sem líkanið sem þið
+smíðuðuð í lið i) gefur.
+Teiknið bestu línu líkansins í rauðu.
+
+Í <tt>ggplot</tt> pakkanum er fall sem að teiknar bestu beinu línu í gegnum gögnin sjálfkrafa fyrir ykkur:
+`stat_smooth(method='lm', se=FALSE)`.
+
+Einfaldasta leiðin til þess að teikna bestu línu líkansins er að búa til nýjan gagnaramma sem að inniheldur
+spábreytugildin úr líkaninu og gildi háðu breytunnar úr líkaninu.
+Þetta má gera á eftirfarandi hátt
+```{r, likan_gogn, eval=FALSE, echo=TRUE}
+gogn_likan <-
+  data.frame(
+    x = ?(fit$model[['X']]),
+    y = ?(predict(fit))
+  )
+```
+þar sem að þið þurfið að skipta <tt>?</tt> út fyrir fall sem að varpar gögnunum aftur á raunskala
+(líkanið var búið til á lograskala) og <tt>X</tt> út fyrir heiti x-breytunnar í líkaninu.
+
+Þið getið svo notað <tt>ggplot</tt> fallið `geom_line()` til þess að teikna bestu línu líkansins.
+Athugið að þar sem að líkanið var búið til á gögnum á lograskala þá er eðlilegt að besta lína þess
+sé EKKI bein þegar búið er að varpa aftur yfir á raunskala.
+
+#### k) (3%)
+Hér er áfram unnið með hafsvæðið sem var valið í liðnum á undan.
+
+Beinar línur eru oft ekki rétt líkan.
+
+Teiknið fyrst lengd á móti aldri fyrir ykkar hafsvæði, sem kassarit.
+
+Búið til tvö líkön með `lm()` fallinu.
+Annars vegar líkan sem leggur beina línu í gegnum gögnin og síðan frjálst líkan með aldurinn sem flokkabreytu:
+```{r, eval=FALSE, echo=TRUE, warning=FALSE, message=FALSE}
+litid <- lm(le~aldur, data=gs)
+stort <- lm(le~factor(aldur), data=gs)
+anova(litid, stort)
+```
+Munið að nota ykkar eigin gögn en ekki `data=gs`.
+
+Bæði líkönin heita línuleg líkön því þau eru línuleg í stikum sínum.
+Hins vegar lýsir síðara sambandið alls ekki beinni línu milli <tt>le</tt> og <tt>aldur</tt>.
+
+Túlkið niðurstöðuna, bæði myndina og prófið, sem <tt>anova</tt> skipunin gerði fyrir ykkur en hún ber líkönin saman.
+
+Þið getið gert þetta sem formlegt tilgátupróf eða í orðum,
+en þurfið að lágmarki að túlka bæði myndina og síðustu töluna í töflunni.
+
+#### Bónusspurning (10%): 
+Finnið sjálf, hvernig má teikna rétt lengdar- og breiddarbauga ásamt útlínum landsins og afmarkið á myndinni svæðin sem þið hafið valið, helst með tilkynningaskyldureitum.
+Athugið að til þess þarf að nota skynsamlega vörpun o.s.frv.
+
+Þið getið byrjað með þetta, en þetta er alls ekki nóg:
+```{r, echo=F, warning=F, message=F}
+ggplot() + 
+  geom_polygon(data = map_data("world",region="iceland"), aes(x=long, y = lat, group = group), fill = "blue", color = "black") + 
+  #coord_map(projection = "mercator")
+coord_quickmap()
+```
