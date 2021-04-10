@@ -138,7 +138,6 @@ at <- at %>% mutate(
       TRUE ~ 'SV'
     )
   )
-at$hafsvaedi
 ```
 
 
@@ -184,24 +183,33 @@ NAhafsvaedi <- filter(at, at$hafsvaedi == 'NA')
 NVhafsvaedi <- filter(at, at$hafsvaedi == 'NV')
 SAhafsvaedi <- filter(at, at$hafsvaedi == 'SA')
 SVhafsvaedi <- filter(at, at$hafsvaedi == 'SV')
+
 colNames <- c("okynthroski", "kynthroski")
+
 NAnr <- c(sum(NAhafsvaedi$kt2 == 0), sum(NAhafsvaedi$kt2 == 1))
 NVnr <- c(sum(NVhafsvaedi$kt2 == 0), sum(NVhafsvaedi$kt2 == 1))
 SAnr <- c(sum(SAhafsvaedi$kt2 == 0), sum(SAhafsvaedi$kt2 == 1))
 SVnr <- c(sum(SVhafsvaedi$kt2 == 0), sum(SVhafsvaedi$kt2 == 1))
-
-fjoldiKynthroska <- tibble("Kynthroskastigsfjoldi" = colNames, "NA" = NAnr, "NV" = NVnr, "SA" = SAnr, "SV" = SVnr)
-fjoldiKynthroska
 
 NAhlut <- NAnr/nrow(NAhafsvaedi)
 NVhlut <- NVnr/nrow(NVhafsvaedi)
 SAhlut <- SAnr/nrow(SAhafsvaedi)
 SVhlut <- SVnr/nrow(SVhafsvaedi)
 
+fjoldiKynthroska <- tibble("Kynthroskastigsfjoldi" = colNames, "NA" = NAnr, "NV" = NVnr, "SA" = SAnr, "SV" = SVnr)
+
 hlutfallKynthroska <- tibble("Kynthroskastigshlutfall" = colNames, "NA" = NAhlut, "NV" = NVhlut, "SA" = SAhlut, "SV" = SVhlut)
+
+Stadur <- c(rep("NA" , 2) , rep("NV" , 2) , rep("SA" , 2) , rep("SV" , 2))
+Throski <- rep(c("Kynthroska" , "Okynthroska") , 4)
+Fjoldi <- c(sum(NAhafsvaedi$kt2 == 0), sum(NAhafsvaedi$kt2 == 1), sum(NVhafsvaedi$kt2 == 0), sum(NVhafsvaedi$kt2 == 1), sum(SAhafsvaedi$kt2 == 0), sum(SAhafsvaedi$kt2 == 1),sum(SVhafsvaedi$kt2 == 0), sum(SVhafsvaedi$kt2 == 1))
+
+graph <- ggplot(data, aes(fill=Throski, y=Fjoldi, x=Stadur)) +
+    geom_bar(position="dodge", stat="identity")
+
+fjoldiKynthroska
 hlutfallKynthroska
-
-
+graph
 
 ```
 
@@ -219,6 +227,13 @@ Teiknið eftirfarandi tvær myndir:
 Eru einhverjir útlagar í aldurshópunum?
 
 Hverjir eru kostirnir við hvora framsetningu fyrir sig?
+
+```{r}
+cats<- c("Fjoldi", "Meðallengd", "Meðalthyngd", "Stadalfravik")
+theTable <- data.frame("Aldur" = cats)
+
+```
+
 
 #### d) (5%)
 Veljið nú tvö hafsvæði af handahófi með `sample()` fallinu
