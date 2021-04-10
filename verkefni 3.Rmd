@@ -138,7 +138,9 @@ at <- at %>% mutate(
       TRUE ~ 'SV'
     )
   )
+at$hafsvaedi
 ```
+
 
 
 **Búið til nýja kynþroskabreytu, <tt>kt2</tt>, sem inniheldur einungis tvo flokka: kynþroska og ókynþroska.**
@@ -159,11 +161,12 @@ Hér er hægt að nota annaðhvort `case_when()` eða `ifelse()` fallið.
 
 Hér eftir vinnum við með kynþroskabreytuna með þessum tveimur flokkum.
 ```{r}
+#her er 1 ef kynthroska, 0 ef okynthroska
 options(max.print=1000000)
 at <- at %>% mutate(
     kt2 = case_when(
-      kt == 4 | kt == 2 | kt == 3 | kt == 5 | kt == 22 ~ 'kynthroska',
-      TRUE ~ 'okynthroska',
+      kt == 4 | kt == 2 | kt == 3 | kt == 5 | kt == 22 ~ '1',
+      TRUE ~ '0',
     )
   )
 ```
@@ -175,6 +178,33 @@ Búið til aðra töflu sem sýnir kynþroskahlutfallið á hverju hafsvæði
 (það á t.d. að vera hægt að lesa hversu hátt hlutfall fiska á suð-vestursvæði (SV) séu kynþroska og ókynþroska). 
 
 Teiknið mynd sem er lýsandi fyrir fjölda fiska af hvoru kynþroskastigi í hverjum flokki af hafsvæðunum fjórum.
+
+```{r}
+NAhafsvaedi <- filter(at, at$hafsvaedi == 'NA')
+NVhafsvaedi <- filter(at, at$hafsvaedi == 'NV')
+SAhafsvaedi <- filter(at, at$hafsvaedi == 'SA')
+SVhafsvaedi <- filter(at, at$hafsvaedi == 'SV')
+colNames <- c("okynthroski", "kynthroski")
+NAnr <- c(sum(NAhafsvaedi$kt2 == 0), sum(NAhafsvaedi$kt2 == 1))
+NVnr <- c(sum(NVhafsvaedi$kt2 == 0), sum(NVhafsvaedi$kt2 == 1))
+SAnr <- c(sum(SAhafsvaedi$kt2 == 0), sum(SAhafsvaedi$kt2 == 1))
+SVnr <- c(sum(SVhafsvaedi$kt2 == 0), sum(SVhafsvaedi$kt2 == 1))
+
+fjoldiKynthroska <- tibble("Kynthroskastigsfjoldi" = colNames, "NA" = NAnr, "NV" = NVnr, "SA" = SAnr, "SV" = SVnr)
+fjoldiKynthroska
+
+NAhlut <- NAnr/nrow(NAhafsvaedi)
+NVhlut <- NVnr/nrow(NVhafsvaedi)
+SAhlut <- SAnr/nrow(SAhafsvaedi)
+SVhlut <- SVnr/nrow(SVhafsvaedi)
+
+hlutfallKynthroska <- tibble("Kynthroskastigshlutfall" = colNames, "NA" = NAhlut, "NV" = NVhlut, "SA" = SAhlut, "SV" = SVhlut)
+hlutfallKynthroska
+
+
+
+```
+
 
 #### c) (12%)
 Sýnið í töflu fjölda fiska, meðallengd, meðalþyngd og staðalfrávik lengdar eftir aldri.
