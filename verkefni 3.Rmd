@@ -229,8 +229,43 @@ Eru einhverjir útlagar í aldurshópunum?
 Hverjir eru kostirnir við hvora framsetningu fyrir sig?
 
 ```{r}
-cats<- c("Fjoldi", "Meðallengd", "Meðalthyngd", "Stadalfravik")
+cats<- c("Fjoldi", "Meðallengd", "Meðalthyngd", "Stadalfravik lengdar")
 theTable <- data.frame("Aldur" = cats)
+
+for(i in 2:16){
+  theTable[i] <- c(sum(i-1 == at$aldur),
+                   if(is.nan(mean(at$le[at$aldur == i-1]))){
+                     0
+                   }
+                   else{
+                     mean(at$le[at$aldur == i-1])
+                   },
+                  if(is.nan(mean(at$sl[at$aldur == i-1]))){
+                     0
+                   }
+                   else{
+                     mean(at$sl[at$aldur == i-1])
+                   },
+                  if(is.na(sd(at$le[at$aldur == i-1]))){
+                     0
+                   }
+                  else{
+                    sd(at$le[at$aldur == i-1])
+                  })
+}
+
+Medal <- at %>%
+  group_by(aldur) %>%
+  summarise(
+    "avgle" = mean(le)
+  )
+
+LengdAldur <- ggplot(jt, aes(x = aldur, y = le)) + geom_point() + geom_point(data = Medal, aes(x = aldur, y = avgle), col = "red")+ylab("Lengd") + xlab("Aldur")
+KassaLengd <- ggplot(jt, aes(group = aldur, x = aldur, y = le)) + geom_boxplot() + ylab("Lengd") + xlab("Aldur")
+
+theTable
+LengdAldur
+KassaLengd
 
 ```
 
@@ -246,6 +281,18 @@ Munið að keyra `set.seed()` með afmælisdeginum ykkar áður en þið keyrið
 
 Sameinið fiskana 100 í eina gagnatöflu (gagnaramma).
 Gott er að nota `rbind()` fallið til að sameina gagnarammana.
+
+```{r}
+set.seed(2016)
+handhof <- sample(unique(at$hafsvaedi),2)
+set.seed(2016)
+hand50a <-  sample_n(filter(at, hafsvaedi == handhof[1]), 50)
+set.seed(2016)
+hand50b <-  sample_n(filter(at, hafsvaedi == handhof[2]), 50)
+samein <- rbind(hand50a, hand50b)
+samein
+```
+
 
 #### e) (15%)
 Kannið með viðeigandi tilgátuprófi, með 95% marktæknikröfu,
