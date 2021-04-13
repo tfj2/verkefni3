@@ -268,6 +268,9 @@ LengdAldur
 KassaLengd
 
 ```
+Mælingar sem eru fyrir utan "skeggið" á kassaritinu eru útlagar(hringir fyrir ofan og neðan strik á kassariti).
+Augljós kostur kassaritsins er að auðvelt er að sjá útlaga en einnig má nefna að þau sýna glöggt hvort dreifingin er samhverf eða skekkt.
+Helstu kostir punktarita er að hægt er að setja fram rit með flokkabreytu.
 
 
 #### d) (5%)
@@ -312,10 +315,21 @@ MUNIÐ: "Samfellt mál" þýðir TEXTI sem samanstendur af heilsteyptum setningu
 Það er ekki átt við blokkir af úttaki úr R!
 
 ```{r}
-hand50a$le
-hand50b$le
-```
 
+misa <- mean(hand50a$le)
+misb <- mean(hand50b$le)
+misab <- misa-misb
+#Welch's  t-test, sótt af google
+t <- misab / sqrt((var(hand50a$le)^2)/length(hand50a$le) + (var(hand50b$le)^2)/length(hand50b$le))
+t
+t.test(hand50a$le, hand50b$le, conf.level = 0.95)
+```
+Núlltilgátan er að meðallengdir haf50a og haf50b séu þær sömu. Sem sagt mu(haf50a) - mu(haf50b) = 0.
+Rannsóknartilgátan er að meðallengdir haf50a og haf50b séu ekki þær sömu. Sem sagt mu(haf50a) - mu(haf50b) != 0.
+
+Höfnum núlltilgátunni því 0 er ekki á öryggisbilinu.
+
+Prófstærð hjá okkur er 0.28/2 = 0.14. P gildið okkar er líka lítið.
 
 #### f) (12%)
 **Teiknið stuðlarit** af lengd fyrir hvert hafsvæði með því að nota allar lengdarmælingar úr upphaflega gagnasafninu.
@@ -414,7 +428,9 @@ Er ályktunin í samræmi við ályktunina sem þið dróguð af venjulega t-pr�
 #P <- sum(replicate(5000, abs(t$statistic) <=abs(t.test(samein$le[sample(1:length(samein$le))] ~ c(rep(1,50), rep(2,50)))$statistic)))/5000
 #P
 ```
-Þessar línur af kóða gefa P gildi sem 0.009, vildi 
+Erfitt að setja fram tilgátu þar sem munur á p er mikill. 
+
+Þessar línur af kóða gefa P gildi sem 0.009.
 #### h) (15%)
 Kannið með viðeigandi tilgátuprófi, með 95% marktæknikröfu,
 hvort munur sé á hlutfalli kynþroska fiska á hafsvæðunum tveimur.
