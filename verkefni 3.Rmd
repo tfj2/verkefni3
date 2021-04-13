@@ -371,6 +371,11 @@ Fylgja gögnin normaldreifingu?
 Ályktið.
 
 
+NV fylgir normal dreyfingu mjög vel, fallegt bell curve.allar rauðu línurnar á myndunum fara upp og svo aftur niður, en þegar betur er liðið á gögnin er normaldreifingin ekkert svo fullkomin. SA er klárlega með tvo toppa og fylgir því normaldreifingu frekar illa. 
+
+Í SA eru ekki margir fiskar og gæti útskýrt ástæðuna, sama gildir mögulega um SV. Í NA eru greinilega 2 mismunandi toppar, kannski eru 2 ríkjandi fisktegundir á svæðinu sem svarar til toppanna. 
+
+
 #### g) (5%)
 Munið að ein forsendan fyrir því að mega nota t-prófið eins og gert var, er að gögnin séu normaldreifð.
 Til eru fjölmörg önnur próf en t-próf sem ekki krefjast normaldreifingar.
@@ -458,7 +463,7 @@ Segið með örfáum orðum hvort þið teljið skynsamlegt að nota líkan sem 
 ```{r}
 lengdThyngd <- ggplot(hand50b, aes(x = le, y = sl)) + geom_jitter()+ xlab("Length") + ylab("Weight")
 
-logLengdThyngd <- ggplot(hand50b, aes(x = log(le), y= log(sl)))+ geom_jitter()+ xlab("Log of lenght") + ylab("Log of Weight")
+logLengdThyngd <- ggplot(hand50b, aes(x = log(le), y= log(sl)))+ geom_jitter()+ xlab("Log of length") + ylab("Log of Weight")
 
 fit <- lm(log(sl) ~ log(le), data = haf1)
 
@@ -523,6 +528,11 @@ Túlkið niðurstöðuna, bæði myndina og prófið, sem <tt>anova</tt> skipuni
 
 Þið getið gert þetta sem formlegt tilgátupróf eða í orðum,
 en þurfið að lágmarki að túlka bæði myndina og síðustu töluna í töflunni.
+
+
+
+
+K ÚRSVINNSLA - Upplýsingarnar sem við fáum úr töflunni eru nóg fyrir okkur til að "rejecta" the null hypothesis með kröfu upp á 95%. Líkurnar á að við fáum eitthvað F stærra en gögnin okkar eru smá, yfir höfuð og hlutfallslega. Myndin sýnir að dreifnin á stærð er mest þegar fiskurinn er 5 og 6 ára. AUk þess er bara einn fiskur sem er 9 ára. 
 
 #### Bónusspurning (10%): 
 Finnið sjálf, hvernig má teikna rétt lengdar- og breiddarbauga ásamt útlínum landsins og afmarkið á myndinni svæðin sem þið hafið valið, helst með tilkynningaskyldureitum.
