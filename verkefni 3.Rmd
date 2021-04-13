@@ -482,7 +482,7 @@ lengdThyngd
 logLengdThyngd
 summary(fit)
 ```
-
+Það virðist vera mjög skynsamlegt að nota þetta líkan til að spá fyrir um þyngd með lengd. Ef litið er Á log of length og weight töfluna sést að fylgnin er mjög línuleg, með einhverri smá dreifni sem er alveg innan skekkjumarka. P gildið er líka lítið.
 
 #### j) (4%)
 Teiknið aftur mynd, líkt og í lið i), sem sýnir sambandið á milli lengdar og þyngdar fiskanna
