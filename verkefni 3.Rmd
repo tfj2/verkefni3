@@ -455,6 +455,18 @@ Athugið að hér er eðlilegast að nota logrann af báðum breytum (hvers vegn
 Setjið líkanið fram ásamt mati á stikum þess.
 
 Segið með örfáum orðum hvort þið teljið skynsamlegt að nota líkan sem þetta til að spá fyrir um þyngd út frá lengd fiskanna.
+```{r}
+lengdThyngd <- ggplot(hand50b, aes(x = le, y = sl)) + geom_jitter()+ xlab("Length") + ylab("Weight")
+
+logLengdThyngd <- ggplot(hand50b, aes(x = log(le), y= log(sl)))+ geom_jitter()+ xlab("Log of lenght") + ylab("Log of Weight")
+
+fit <- lm(log(sl) ~ log(le), data = haf1)
+
+lengdThyngd
+logLengdThyngd
+summary(fit)
+```
+
 
 #### j) (4%)
 Teiknið aftur mynd, líkt og í lið i), sem sýnir sambandið á milli lengdar og þyngdar fiskanna
@@ -472,9 +484,11 @@ spábreytugildin úr líkaninu og gildi háðu breytunnar úr líkaninu.
 ```{r, likan_gogn, eval=FALSE, echo=TRUE}
 gogn_likan <-
   data.frame(
-    x = ?(fit$model[['X']]),
-    y = ?(predict(fit))
+    x = exp(fit$model[['log(le)']]),
+    y = exp(predict(fit))
   )
+likan <- ggplot(hand50b, aes(x = le, y = sl)) + geom_jitter()  + xlab("Length")  + ylab("Weight") + geom_smooth(formula = 'y ~ x', method = loess, color = 'red', se = FALSE) + stat_smooth(method = 'glm', se = FALSE)
+likan
 ```
 þar sem að þið þurfið að skipta <tt>?</tt> út fyrir fall sem að varpar gögnunum aftur á raunskala
 (líkanið var búið til á lograskala) og <tt>X</tt> út fyrir heiti x-breytunnar í líkaninu.
@@ -493,9 +507,12 @@ Teiknið fyrst lengd á móti aldri fyrir ykkar hafsvæði, sem kassarit.
 Búið til tvö líkön með `lm()` fallinu.
 Annars vegar líkan sem leggur beina línu í gegnum gögnin og síðan frjálst líkan með aldurinn sem flokkabreytu:
 ```{r, eval=FALSE, echo=TRUE, warning=FALSE, message=FALSE}
-litid <- lm(le~aldur, data=gs)
-stort <- lm(le~factor(aldur), data=gs)
+litid <- lm(le~aldur, data=at)
+stort <- lm(le~factor(aldur), data=at)
 anova(litid, stort)
+
+theBox <- ggplot(hand50b, aes(x = aldur, y = le, group = aldur)) + geom_boxplot() + xlab("Age") + ylab("Length")
+theBox
 ```
 Munið að nota ykkar eigin gögn en ekki `data=gs`.
 
