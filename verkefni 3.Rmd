@@ -441,7 +441,18 @@ areaPropTable <- rbind(NV_prop, NA_prop)
 theTest <- prop.test(areaPropTable)
 areaTable
 theTest
+theTest$p.value
 ```
+
+Núlltilgátan er að PNA-PNV = 0. Þar sem PNA er P gildið fyrir NA hlut svæðisins og PNV er P gildi NV hlutans.
+Rannsóknartilgátan segir að PNA-PNV != 0.
+
+
+95% öryggisbilið er gefið í 2-sample test for equality of proportions with continuity correction. Þar er interval-ið frá -0.00946 til 0.4095 sem vissulega inniheldur 0. 
+P gildið er 0.06823. 
+Prófstærðin er 3.325123.
+Stikarnir eru 0.68 og 0.48.
+Gildi p er stærra en 0 svo 0 tilgátunni er ekki hafnað, og svo kemur í ljós að öryggisbilið inniheldur 0.
 
 
 #### i) (12%)
