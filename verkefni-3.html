@@ -692,6 +692,13 @@ samein</code></pre>
 <p>Tilgreinið gildið á prófstærðinni ásamt p-gildinu í samfelldu máli og segið í örfáum orðum hvaða ályktun þið dragið.</p>
 <p>Sýnið einnig 95%-öryggisbil fyrir mismun meðaltalanna á hafsvæðunum tveimur. Inniheldur öryggisbilið 0? Hvers vegna eða hvers vegna ekki? Útskýrið.</p>
 <p>MUNIÐ: “Samfellt mál” þýðir TEXTI sem samanstendur af heilsteyptum setningum með sögnum (sagnorðum) og nafnorðum. Það er ekki átt við blokkir af úttaki úr R!</p>
+<pre class="r"><code>hand50a$le</code></pre>
+<pre><code>##  [1]  73  62  93  58  57  70  77  90  78  62  66  77  62  67  85  66  83  83  55
+## [20]  67  87  93  86  70  73  74  34  65  47  76  87  99  66  80  38  80  62  86
+## [39]  63  89 102  85  96  63  69  79  73  81  38  64</code></pre>
+<pre class="r"><code>hand50b$le</code></pre>
+<pre><code>##  [1] 59 39 42 79 75 91 61 62 65 56 85 68 81 63 37 68 55 51 73 76 62 48 60 76 63
+## [26] 75 61 48 51 70 86 36 63 77 72 65 56 56 64 56 57 45 46 61 56 65 60 45 42 56</code></pre>
 </div>
 <div id="f-12" class="section level4">
 <h4>f) (12%)</h4>
@@ -745,10 +752,10 @@ ggplot(at_long, aes(x = le)) + geom_histogram(binwidth = BW) + geom_line(data = 
 <p>Þá getið þið borið tölugildið af, <code>t0</code>, saman við tölugildið af <code>t.test(z[sample(1:length(z))]~xyind)$statistic</code> þar sem <tt>xyind</tt> er vigur af sömu lengd og samsetta gagnasafnið sem er geymt í breytunni <tt>z</tt>.</p>
 <p>Vigurinn <tt>xyind</tt> inniheldur gildin 1 og 2 og er notaður til þess að skipta gögnunum í tvö gagnasett af sömu stærðum og upprunalegu gagnasöfnin (fyrir hvort hafsvæði) sem unnið var með í liðunum á undan.</p>
 <p>Endurtakið þetta 5000 sinnum með því að nota <code>replicate()</code> fallið eins og í fyrri v Setjið p-gildið fram ásamt ásamt þeirri ályktun sem þið dragið (í samfelldu málerkefnum. i). Er ályktunin í samræmi við ályktunina sem þið dróguð af venjulega t-prófinu?</p>
-</div>
-<div id="h-15" class="section level4">
-<h4>h) (15%)</h4>
-<p>Kannið með viðeigandi tilgátuprófi, með 95% marktæknikröfu, hvort munur sé á hlutfalli kynþroska fiska á hafsvæðunum tveimur. Athugið að þið gætuð þurft að henda úr hafsvæðisgögnunum ykkar ónotuðum flokkum í flokkabreytunni <tt>hafsvaedi</tt>. Þið getið gert það með <code>droplevels()</code> fallinu</p>
+<pre class="r"><code>#set.seed(2016)
+#P &lt;- sum(replicate(5000, abs(t$statistic) &lt;=abs(t.test(samein$le[sample(1:length(samein$le))] ~ c(rep(1,50), rep(2,50)))$statistic)))/5000
+#P</code></pre>
+<p>Þessar línur af kóða gefa P gildi sem 0.009, vildi #### h) (15%) Kannið með viðeigandi tilgátuprófi, með 95% marktæknikröfu, hvort munur sé á hlutfalli kynþroska fiska á hafsvæðunum tveimur. Athugið að þið gætuð þurft að henda úr hafsvæðisgögnunum ykkar ónotuðum flokkum í flokkabreytunni <tt>hafsvaedi</tt>. Þið getið gert það með <code>droplevels()</code> fallinu</p>
 <p>Birtið töflu yfir fjölda kynþroska og ókynþroska fiska á hvoru hafsvæði.</p>
 <p>Setjið tilgáturnar fram á formlegan hátt (<span class="math inline">\(H_0\)</span> og <span class="math inline">\(H_1\)</span>). Tilgreinið gildið á prófstærðinni, p-gildinu og matið á stikunum sem verið er að prófa í samfelldu máli. Takið fram hvort að matið á stikunum sé fyrir hlutfall kynþroska fiska eða ókynþroska fiska.</p>
 <p>Segið í örfáum orðum hvaða ályktun þið dragið.</p>
