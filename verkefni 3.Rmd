@@ -409,7 +409,9 @@ Setjið p-gildið fram ásamt ásamt þeirri ályktun sem þið dragið (í samf
 i).
 Er ályktunin í samræmi við ályktunina sem þið dróguð af venjulega t-prófinu?
 ```{r}
-
+set.seed(2016)
+P <- sum(replicate(5000, abs(t$statistic) <=abs(t.test(samein$le[sample(1:length(samein$le))] ~ c(rep(1,50), rep(2,50)))$statistic)))/5000
+P
 ```
 
 #### h) (15%)
